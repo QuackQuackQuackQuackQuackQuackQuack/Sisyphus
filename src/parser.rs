@@ -16,7 +16,19 @@ peg::parser! { grammar sisyphys_parser() for str {
         = { todo!() }
 
     rule lit() -> Lit
-        = { todo!() }
+        = str:lit_string(StringTerminator::NORMAL) { Lit::String(str) }
+	/ b:lit_bool() { Lit::Bool(b) }
+	/ int:lit_int() { Lit::Int(int) }
+
+    rule lit_bool() -> bool
+	= "true" { true } 
+	/ "false" { false }
+
+    rule lit_int() -> i128
+	= quiet!{
+	    n:$(['0'..='9']+) {? n.parse().or(Err("failed to parse an integer")) }
+	}
+	/ expected!("integer")
 
     rule ident() -> String
         = quiet!{
@@ -61,6 +73,7 @@ peg::parser! { grammar sisyphys_parser() for str {
                 .ok_or("valid unicode code point");
         }
         / expected!("valid escape sequence")
+
 
     rule __() -> ()
         = (" " / "\t")+ { () }
