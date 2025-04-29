@@ -1,6 +1,7 @@
 use crate::expr::{ Expr, Lit };
 use peg::{ self, error::ParseError, str::LineCol };
 use unicode_ident::{ is_xid_start, is_xid_continue };
+use f128::f128;
 
 
 struct StringTerminator(!);
@@ -29,19 +30,24 @@ peg::parser! { grammar sisyphys_parser() for str {
         / l:lit() { Expr::Lit(l) }
 
     rule expr_args(n : usize) -> Vec<Expr>
-        = args:( a:expr() { a } )**<{n}> __ { args }
+        = a:( a:expr() { a } )**<{n}> __ { a }
 
     rule lit() -> Lit
-        = str:lit_string(StringTerminator::NORMAL) { Lit::String(str) }
+        = s:lit_string(StringTerminator::NORMAL) { Lit::String(s) }
         / b:lit_bool() { Lit::Bool(b) }
-        / int:lit_int() { Lit::Int(int) }
+        / i:lit_int() { Lit::Int(i) }
+        / f:lit_float() { Lit::Float(f) }
 
     rule lit_bool() -> bool
         = "true" { true } 
         / "false" { false }
 
+    rule lit_float() -> f128
+        = quiet!{ f:$(lit_int() "." lit_int()) {? f128::parse(f).or(Err("bad float")) } }
+        / expected!("float")
+
     rule lit_int() -> i128
-        = quiet!{ n:$(['0'..='9']+) {? n.parse().or(Err("failed to parse an integer")) } }
+        = quiet!{ s:$(['0'..='9']+) {? s.parse().or(Err("bad int")) } }
         / expected!("integer")
 
     rule ident() -> String
