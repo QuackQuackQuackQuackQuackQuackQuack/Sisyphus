@@ -1,7 +1,10 @@
 // TODO: pub mod parser;
 
 
-#![feature(f128)]
+#![feature(
+    f128,
+    never_type
+)]
 
 
 pub mod expr;

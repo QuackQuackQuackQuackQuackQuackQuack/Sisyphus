@@ -5,3 +5,6 @@ edition = "2024"
 
 [dependencies.peg]
 version = "0.8"
+
+[dependencies.unicode-ident]
+version = "1.0"
