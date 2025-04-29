@@ -8,3 +8,6 @@ version = "0.8"
 
 [dependencies.unicode-ident]
 version = "1.0"
+
+[dependencies.f128]
+version = "0.2"

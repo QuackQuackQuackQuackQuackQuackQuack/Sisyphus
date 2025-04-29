@@ -1,3 +1,7 @@
+use f128::f128;
+
+
+#[derive(Debug)]
 pub enum Expr {
     Print(Box<Expr>),
     Add(Box<(Expr, Expr,)>),
@@ -7,6 +11,7 @@ pub enum Expr {
     Lit(Lit)
 }
 
+#[derive(Debug)]
 pub enum Lit {
     Bool(bool),
     Int(i128),

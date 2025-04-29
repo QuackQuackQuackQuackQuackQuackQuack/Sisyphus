@@ -1,6 +1,6 @@
 use crate::expr::{ Expr, Lit };
-use peg;
-use unicode_ident::{is_xid_start, is_xid_continue};
+use peg::{ self, error::ParseError, str::LineCol };
+use unicode_ident::{ is_xid_start, is_xid_continue };
 
 
 struct StringTerminator(!);
@@ -10,25 +10,39 @@ impl StringTerminator {
 }
 
 
+pub fn parse(script : &str) -> Result<Vec<Expr>, ParseError<LineCol>> {
+    sisyphys_parser::script(script)
+}
+
+
 peg::parser! { grammar sisyphys_parser() for str {
 
-    rule args(count : usize) -> Vec<Expr>
-        = { todo!() }
+    pub(super) rule script() -> Vec<Expr>
+        = _ e:( e:expr() _ { e } ) ** ( "\n" _ ) { e }
+
+    rule expr() -> Expr
+        = "print" __ a:expr_args(1) { destructure_expr_args!( a => v,    ); Expr::Print (Box::new(v)) }
+        / "+"     __ a:expr_args(2) { destructure_expr_args!( a => l, r, ); Expr::Add   (Box::new((l, r,))) }
+        / "-"     __ a:expr_args(2) { destructure_expr_args!( a => l, r, ); Expr::Sub   (Box::new((l, r,))) }
+        / "*"     __ a:expr_args(2) { destructure_expr_args!( a => l, r, ); Expr::Mul   (Box::new((l, r,))) }
+        / "/"     __ a:expr_args(2) { destructure_expr_args!( a => l, r, ); Expr::Div   (Box::new((l, r,))) }
+        / l:lit() { Expr::Lit(l) }
+
+    rule expr_args(n : usize) -> Vec<Expr>
+        = args:( a:expr() { a } )**<{n}> __ { args }
 
     rule lit() -> Lit
         = str:lit_string(StringTerminator::NORMAL) { Lit::String(str) }
-	/ b:lit_bool() { Lit::Bool(b) }
-	/ int:lit_int() { Lit::Int(int) }
+        / b:lit_bool() { Lit::Bool(b) }
+        / int:lit_int() { Lit::Int(int) }
 
     rule lit_bool() -> bool
-	= "true" { true } 
-	/ "false" { false }
+        = "true" { true } 
+        / "false" { false }
 
     rule lit_int() -> i128
-	= quiet!{
-	    n:$(['0'..='9']+) {? n.parse().or(Err("failed to parse an integer")) }
-	}
-	/ expected!("integer")
+        = quiet!{ n:$(['0'..='9']+) {? n.parse().or(Err("failed to parse an integer")) } }
+        / expected!("integer")
 
     rule ident() -> String
         = quiet!{
@@ -81,3 +95,10 @@ peg::parser! { grammar sisyphys_parser() for str {
         = (" " / "\t")* { () }
 
 } }
+
+
+
+macro destructure_expr_args( $a:expr => $( $out:pat ),+ $(,)? ) {
+    let mut a = ($a).into_iter();
+    $( let $out = a.next().unwrap(); )+
+}

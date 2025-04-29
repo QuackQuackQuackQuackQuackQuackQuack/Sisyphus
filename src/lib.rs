@@ -2,8 +2,8 @@
 
 
 #![feature(
-    f128,
-    never_type
+    never_type,
+    decl_macro
 )]
 
 
