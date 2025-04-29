@@ -17,12 +17,18 @@ peg::parser! { grammar sisyphys_parser() for str {
 
     rule lit() -> Lit
         = str:lit_string(StringTerminator::NORMAL) { Lit::String(str) }
-	/ b:lit_bool() { Lit::Bool(b) }
-	/ int:lit_int() { Lit::Int(int) }
+    / b:lit_bool() { Lit::Bool(b) }
+    / f:lit_float() { Lit::Float(f) }
+    / int:lit_int() { Lit::Int(int) }
 
     rule lit_bool() -> bool
-	= "true" { true } 
-	/ "false" { false }
+    = "true" { true } 
+    / "false" { false }
+
+    rule lit_float() -> f128
+    = quiet!{
+        f:$(lit_int() "." lit_int()) {? f.parse().or(Err("failed to parse a float"))
+    }
 
     rule lit_int() -> i128
 	= quiet!{
