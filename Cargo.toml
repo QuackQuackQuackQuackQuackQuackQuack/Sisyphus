@@ -1,7 +1,8 @@
 [package]
-name = "sisyphus"
+name    = "sisyphus"
 version = "0.1.0"
 edition = "2024"
+
 
 [dependencies.peg]
 version = "0.8"
@@ -11,3 +12,7 @@ version = "1.0"
 
 [dependencies.f128]
 version = "0.2"
+
+
+[lints.rust]
+unused_parens = "allow"

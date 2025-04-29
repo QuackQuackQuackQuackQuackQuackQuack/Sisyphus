@@ -2,5 +2,8 @@ use sisyphus;
 
 
 fn main() {
-    println!("{:?}", sisyphus::parser::parse("print 10"));
+    match (sisyphus::parser::parse("print ")) {
+        Ok(script) => { println!("{:?}", script); },
+        Err(err) => { err.print_formatted(); }
+    }
 }

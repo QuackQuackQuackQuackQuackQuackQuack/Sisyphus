@@ -1,7 +1,11 @@
 use crate::expr::{ Expr, Lit };
-use peg::{ self, error::ParseError, str::LineCol };
+use peg;
 use unicode_ident::{ is_xid_start, is_xid_continue };
 use f128::f128;
+
+
+mod error;
+pub use error::*;
 
 
 struct StringTerminator(!);
@@ -11,8 +15,8 @@ impl StringTerminator {
 }
 
 
-pub fn parse(script : &str) -> Result<Vec<Expr>, ParseError<LineCol>> {
-    sisyphys_parser::script(script)
+pub fn parse<'l>(script : &'l str) -> Result<Vec<Expr>, ParserError<'l>> {
+    sisyphys_parser::script(&script).map_err(|e| ParserError::from_peg(script.lines().nth(e.location.line - 1).unwrap(), e))
 }
 
 
@@ -96,9 +100,9 @@ peg::parser! { grammar sisyphys_parser() for str {
 
 
     rule __() -> ()
-        = (" " / "\t")+ { () }
+        = quiet!{ (" " / "\t")+ { () } }
     rule _() -> ()
-        = (" " / "\t")* { () }
+        = quiet!{ (" " / "\t")* { () } }
 
 } }
 
