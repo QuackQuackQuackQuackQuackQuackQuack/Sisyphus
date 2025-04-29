@@ -1,0 +1,33 @@
+use crate::expr::{ Expr, Lit };
+use std::collections::VecDeque;
+
+
+mod expr;
+pub use expr::*;
+
+mod value;
+pub use value::*;
+
+
+pub struct Executor {
+    exprs : VecDeque<Expr>
+}
+
+impl Executor {
+    pub fn new() -> Self {
+        Self {
+            exprs : VecDeque::new()
+        }
+    }
+}
+
+impl Executor {
+
+    pub fn push_exprs<I>(&mut self, exprs : I)
+    where
+        I : IntoIterator<Item = Expr>
+    {
+        self.exprs.extend(exprs);
+    }
+
+}
