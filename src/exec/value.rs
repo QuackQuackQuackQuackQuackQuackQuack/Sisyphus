@@ -71,6 +71,25 @@ impl Mul for Value {
     }
 }
 
+impl Div for Value {
+    type Output = Value;
+    fn div(self, rhs : Self) -> Self::Output {
+        match ((&self, &rhs)) {
+            (Self::Unit, _)                  | (_, Self::Unit)                 => Self::Error,
+            (Self::Bool(a), Self::Bool(b))                                     => if (*b ) { Self::Bool(*a) } else { Self::Error }, 
+            (Self::Bool(_), Self::Int(_))                                      => Self::Error, 
+            (Self::Int(a), Self::Bool(b))                                      => if (*b) { Self::Int(*a) } else { Self::Error }, 
+            (Self::Bool(_), Self::Float(_))                                    => Self::Error, 
+            (Self::Float(a), Self::Bool(b))                                    => if (*b) { Self::Float(*a) } else { Self::Error }, 
+            (Self::Int(a), Self::Int(b))                                       => Self::Int(*a / *b), 
+            (Self::Int(a), Self::Float(b))                                     => Self::Float(f128::from(*a) / *b), 
+            (Self::Float(a), Self::Int(b))                                     => Self::Float(*a / f128::from(*b)), 
+            (Self::Float(a), Self::Float(b))                                   => Self::Float(*a / *b), 
+            (Self::String(_), _)             | (_, Self::String(_))            => Self::Error,
+            (Self::Error, _)                 | (_, Self::Error)                => Self::Error
+        }
+    }
+}
 
 impl fmt::Display for Value {
     fn fmt(&self, f : &mut fmt::Formatter<'_>) -> fmt::Result {
