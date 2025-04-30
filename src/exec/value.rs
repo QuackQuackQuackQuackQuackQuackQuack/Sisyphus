@@ -86,7 +86,8 @@ impl Div for Value {
             (Self::Float(a), Self::Int(b))                                     => Self::Float(*a / f128::from(*b)), 
             (Self::Float(a), Self::Float(b))                                   => Self::Float(*a / *b), 
             (Self::String(_), _)             | (_, Self::String(_))            => Self::Error,
-            (Self::Error, _)                 | (_, Self::Error)                => Self::Error
+            (Self::Error, _)                 | (_, Self::Error)                => Self::Error,
+            (Self::ExprQueue, _)             | (_, Self::ExprQueue)            => Self::Error
         }
     }
 }
