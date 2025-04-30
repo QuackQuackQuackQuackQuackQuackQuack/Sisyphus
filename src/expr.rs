@@ -14,7 +14,9 @@ pub enum Expr {
     Set(Box<(Expr, Expr, Expr)>), // iterable, index, entry
     Len(Box<Expr>), // iterable
     FSRead(Box<Expr>), // file name
-    Lit(Lit) // value
+    Lit(Lit), // value
+    If(Box<(Expr, Expr, Expr)>), // conditional. runs second expr if the first is true, otherwise runs the third
+    Range(Box<(Expr, Expr)>) // range from first to second, inclusive of first but not second
 }
 
 #[derive(Debug)]
