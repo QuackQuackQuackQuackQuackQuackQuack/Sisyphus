@@ -48,6 +48,7 @@ peg::parser! { grammar sisyphys_parser() for str {
         / b:lit_bool() { Lit::Bool(b) }
         / i:lit_int() { Lit::Int(i) }
         / f:lit_float() { Lit::Float(f) }
+        / "queue" { Lit::ExprQueue }
 
     rule lit_bool() -> bool
         = "true" { true } 
