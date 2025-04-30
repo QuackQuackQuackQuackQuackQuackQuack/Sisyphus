@@ -1,10 +1,20 @@
 use sisyphus;
-use sisyphus::exec::Execute;
+use sisyphus::expr::{ Expr, Lit };
+use sisyphus::exec::{ Executor, Execute };
 
 
 fn main() {
-    match (sisyphus::parser::parse("print \"Hello, World!\"")) {
-        Ok(script) => { for expr in script { expr.execute(); } },
-        Err(err) => { err.print_formatted(); }
-    }
+    let source_file = "samples/fibonacci.push";
+
+    let mut executor = Executor::new();
+    executor.push_exprs([
+        Expr::Push(Box::new((
+            Expr::Lit(Lit::ExprQueue),
+            Expr::FSRead(Box::new(
+                Expr::Lit(Lit::String(source_file.to_string()))
+            ))
+        )))
+    ]);
+
+    while (executor.tick()) { }
 }

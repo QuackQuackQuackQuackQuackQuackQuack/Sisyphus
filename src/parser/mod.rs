@@ -26,11 +26,17 @@ peg::parser! { grammar sisyphys_parser() for str {
         = _ e:( e:expr() _ { e } ) ** ( "\n" _ ) { e }
 
     rule expr() -> Expr
-        = "print" __ a:expr_args(1) { destructure_expr_args!( a => v,    ); Expr::Print (Box::new(v)) }
-        / "+"     __ a:expr_args(2) { destructure_expr_args!( a => l, r, ); Expr::Add   (Box::new((l, r,))) }
-        / "-"     __ a:expr_args(2) { destructure_expr_args!( a => l, r, ); Expr::Sub   (Box::new((l, r,))) }
-        / "*"     __ a:expr_args(2) { destructure_expr_args!( a => l, r, ); Expr::Mul   (Box::new((l, r,))) }
-        / "/"     __ a:expr_args(2) { destructure_expr_args!( a => l, r, ); Expr::Div   (Box::new((l, r,))) }
+        = "print"  __ a:expr_args(1) { destructure_expr_args!( a => v,       ); Expr::Print  (Box::new(v)) }
+        / "+"      __ a:expr_args(2) { destructure_expr_args!( a => l, r,    ); Expr::Add    (Box::new((l, r,))) }
+        / "-"      __ a:expr_args(2) { destructure_expr_args!( a => l, r,    ); Expr::Sub    (Box::new((l, r,))) }
+        / "*"      __ a:expr_args(2) { destructure_expr_args!( a => l, r,    ); Expr::Mul    (Box::new((l, r,))) }
+        / "/"      __ a:expr_args(2) { destructure_expr_args!( a => l, r,    ); Expr::Div    (Box::new((l, r,))) }
+        / "get"    __ a:expr_args(2) { destructure_expr_args!( a => a, i,    ); Expr::Get    (Box::new((a, i,))) }
+        / "push"   __ a:expr_args(2) { destructure_expr_args!( a => a, v,    ); Expr::Push   (Box::new((a, v,))) }
+        / "insert" __ a:expr_args(3) { destructure_expr_args!( a => a, i, v, ); Expr::Insert (Box::new((a, i, v,))) }
+        / "set"    __ a:expr_args(3) { destructure_expr_args!( a => a, i, v, ); Expr::Set    (Box::new((a, i, v,))) }
+        / "len"    __ a:expr_args(1) { destructure_expr_args!( a => a,       ); Expr::Print  (Box::new(a)) }
+        / "fsread" __ a:expr_args(1) { destructure_expr_args!( a => f,       ); Expr::FSRead (Box::new(f)) }
         / l:lit() { Expr::Lit(l) }
 
     rule expr_args(n : usize) -> Vec<Expr>

@@ -9,7 +9,8 @@ pub enum Value {
     Int(i128),
     Float(f128),
     String(String),
-    Error
+    Error,
+    ExprQueue
 }
 
 impl Add for Value {
@@ -24,7 +25,8 @@ impl Add for Value {
             (Self::Int(a), Self::Float(b))   | (Self::Float(b), Self::Int(a))  => Self::Float(f128::from(*a) + *b),
             (Self::Float(a), Self::Float(b))                                   => Self::Float(*a + *b),
             (Self::String(_), _)             | (_, Self::String(_))            => Self::String(format!("{}{}", self, rhs)),
-            (Self::Error, _)                 | (_, Self::Error)                => Self::Error
+            (Self::Error, _)                 | (_, Self::Error)                => Self::Error,
+            (Self::ExprQueue, _)             | (_, Self::ExprQueue)            => Self::Error
         }
     }
 }
@@ -44,7 +46,8 @@ impl Sub for Value {
             (Self::Float(a), Self::Int(b))                          => Self::Float(*a - f128::from(*b)),
             (Self::Float(a), Self::Float(b))                        => Self::Float(*a - *b),
             (Self::String(_), _)             | (_, Self::String(_)) => Self::Error,
-            (Self::Error, _)                 | (_, Self::Error)     => Self::Error
+            (Self::Error, _)                 | (_, Self::Error)     => Self::Error,
+            (Self::ExprQueue, _)             | (_, Self::ExprQueue)            => Self::Error
         }
     }
 }
@@ -62,7 +65,8 @@ impl Mul for Value {
             (Self::Float(a), Self::Float(b))                                   => Self::Float(*a * *b),
             (Self::String(a), Self::Int(b))  | (Self::Int(b), Self::String(a)) => if (*b >= 0) { Self::String(a.repeat(*b as usize)) } else { Self::Error },
             (Self::String(_), _)             | (_, Self::String(_))            => Self::Error,
-            (Self::Error, _)                 | (_, Self::Error)                => Self::Error
+            (Self::Error, _)                 | (_, Self::Error)                => Self::Error,
+            (Self::ExprQueue, _)             | (_, Self::ExprQueue)            => Self::Error
         }
     }
 }
@@ -76,7 +80,8 @@ impl fmt::Display for Value {
             Self::Int(v)    => write!(f, "{}", v),
             Self::Float(v)  => write!(f, "{}", v),
             Self::String(v) => write!(f, "{}", v),
-            Self::Error     => write!(f, "error")
+            Self::Error     => write!(f, "error"),
+            Self::ExprQueue => write!(f, "exprqueue")
         }
     }
 }

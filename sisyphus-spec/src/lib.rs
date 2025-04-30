@@ -17,29 +17,15 @@ pub fn r#if<T>(condition : bool, when_true : T, when_false : T) -> T { docs_only
 /// Gets a single entry from the given array.
 pub fn get<T>(array : Array<T>, line : usize) -> String { docs_only() }
 
-/// Gets multiple entries from the given array.
-///
-/// Start is inclusinve, end is exclusive.
-pub fn gets<T>(array : Array<T>, start_line : usize, end_line : UInt) -> String { docs_only() }
-
 
 /// Pushes a single entry at the end of the given array.
 ///
 /// Returns the index at which it was placed.
 pub fn push<T>(array : &mut Array<T>, instruction : String) -> UInt { docs_only() }
 
-/// Pushes multiple entries at the end of the given array.
-///
-/// Returns the index at which the entry was placed.
-pub fn pushes<T>(array : &mut Array<T>, instructions : Vec<String>) -> UInt { docs_only() }
-
 
 /// Inserts a single entry at some position in the given array.
 pub fn insert<T>(array : &mut Array<T>, line : usize, instruction : String) -> () { docs_only() }
-
-/// Inserts multiple entries at some position in the given
-///  array.
-pub fn inserts<T>(array : &mut Array<T>, line : usize, instructions : Vec<String>) -> () { docs_only() }
 
 
 /// Overwrites a single entry at some position in the given
@@ -47,12 +33,6 @@ pub fn inserts<T>(array : &mut Array<T>, line : usize, instructions : Vec<String
 ///
 /// Returns the old instruction.
 pub fn set<T>(array : &mut Array<T>, line : usize, instruction : String) -> String { docs_only() }
-
-/// Overwrites multiple entries starting at some position in
-///  the given array.
-///
-/// Returns the old instructions.
-pub fn sets<T>(array : &mut Array<T>, start_line : usize, instructions : Vec<String>) -> Vec<String> { docs_only() }
 
 
 /// Returns the number of elements in the given array.

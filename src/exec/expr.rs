@@ -1,32 +1,39 @@
 use crate::expr::{ Expr, Lit };
-use crate::exec::Value;
+use crate::exec::{ Executor, Value };
 
 
 pub trait Execute {
-    fn execute(self) -> Value;
+    fn execute(self, e : &mut Executor) -> Value;
 }
 
 
 impl Execute for Expr {
-    fn execute(self) -> Value {
+    fn execute(self, e : &mut Executor) -> Value {
         match (self) {
-            Self::Print(expr) => { println!("{}", expr.execute()); Value::Unit },
-            Self::Add(args) => args.0.execute() + args.1.execute(),
-            Self::Sub(args) => args.0.execute() - args.1.execute(),
-            Self::Mul(args) => args.0.execute() * args.1.execute(),
+            Self::Print(expr) => { println!("{}", expr.execute(e)); Value::Unit },
+            Self::Add(args) => args.0.execute(e) + args.1.execute(e),
+            Self::Sub(args) => args.0.execute(e) - args.1.execute(e),
+            Self::Mul(args) => args.0.execute(e) * args.1.execute(e),
             Self::Div(args) => todo!(),
-            Self::Lit(lit) => lit.execute(),
+            Self::Get(args) => todo!(),
+            Self::Push(args) => todo!(),
+            Self::Insert(args) => todo!(),
+            Self::Set(args) => todo!(),
+            Self::Len(args) => todo!(),
+            Self::FSRead(args) => todo!(),
+            Self::Lit(lit) => lit.execute(e),
         }
     }
 }
 
 impl Execute for Lit {
-    fn execute(self) -> Value {
+    fn execute(self, _e : &mut Executor) -> Value {
         match (self) {
-            Self::Bool   (v) => Value::Bool(v),
-            Self::Int    (v) => Value::Int(v),
-            Self::Float  (v) => Value::Float(v),
-            Self::String (v) => Value::String(v),
+            Self::Bool      (v) => Value::Bool(v),
+            Self::Int       (v) => Value::Int(v),
+            Self::Float     (v) => Value::Float(v),
+            Self::String    (v) => Value::String(v),
+            Self::ExprQueue     => Value::ExprQueue
         }
     }
 }
