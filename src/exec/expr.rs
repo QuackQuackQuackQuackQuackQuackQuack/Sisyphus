@@ -14,14 +14,20 @@ impl Execute for Expr {
             Self::Add(args) => args.0.execute(e) + args.1.execute(e),
             Self::Sub(args) => args.0.execute(e) - args.1.execute(e),
             Self::Mul(args) => args.0.execute(e) * args.1.execute(e),
-            Self::Div(args) => todo!(),
+            Self::Div(args) => args.0.execute(e) / args.1.execute(e),
             Self::Get(args) => todo!(),
+            Self::Gets(args) => todo!(),
             Self::Push(args) => todo!(),
+            Self::Pushes(args) => todo!(),
             Self::Insert(args) => todo!(),
+            Self::Inserts(args) => todo!(),
             Self::Set(args) => todo!(),
+            Self::Sets(args) => todo!(),
             Self::Len(args) => todo!(),
             Self::FSRead(args) => todo!(),
             Self::Lit(lit) => lit.execute(e),
+            Self::If(args) => todo!(),
+            Self::Range(args) => todo!(),
         }
     }
 }

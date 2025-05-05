@@ -9,9 +9,13 @@ pub enum Expr {
     Mul(Box<(Expr, Expr,)>), // left, right
     Div(Box<(Expr, Expr,)>), // left, right
     Get(Box<(Expr, Expr,)>), // iterable, index
+    Gets(Box<(Expr, Expr, Expr)>), // iterable, start index, end index
     Push(Box<(Expr, Expr,)>), // iterable, entry
+    Pushes(Box<(Expr, Expr)>), // iterable, iterable
     Insert(Box<(Expr, Expr, Expr,)>), // iterable, index, entry
+    Inserts(Box<(Expr, Expr, Expr)>), // iterable, start index, iterable
     Set(Box<(Expr, Expr, Expr)>), // iterable, index, entry
+    Sets(Box<(Expr, Expr, Expr)>), // iterable, start index, iterable
     Len(Box<Expr>), // iterable
     FSRead(Box<Expr>), // file name
     Lit(Lit), // value
