@@ -37,6 +37,7 @@ peg::parser! { grammar sisyphys_parser() for str {
         / "set"    __ a:expr_args(3) { destructure_expr_args!( a => a, i, v, ); Expr::Set    (Box::new((a, i, v,))) }
         / "len"    __ a:expr_args(1) { destructure_expr_args!( a => a,       ); Expr::Print  (Box::new(a)) }
         / "fsread" __ a:expr_args(1) { destructure_expr_args!( a => f,       ); Expr::FSRead (Box::new(f)) }
+        / "if"     __ a:expr_args(3) { destructure_expr_args!( a => c, t, f, ); Expr::If     (Box::new((c, t, f))) }
         / l:lit() { Expr::Lit(l) }
 
     rule expr_args(n : usize) -> Vec<Expr>
