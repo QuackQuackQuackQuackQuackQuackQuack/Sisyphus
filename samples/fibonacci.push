@@ -1,0 +1,6 @@
+pushes queue gets queue range 0 4
+print get queue 4
+push queue get queue 3
+push queue str + int get queue 1 int get queue 2
+0
+1
