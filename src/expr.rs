@@ -1,3 +1,4 @@
+use core::fmt;
 use f128::f128;
 
 
@@ -23,6 +24,28 @@ pub enum Expr {
     Range(Box<(Expr, Expr)>) // range from first to second, inclusive of first but not second
 }
 
+impl fmt::Display for Expr {
+    fn fmt(&self, f : &mut fmt::Formatter<'_>) -> fmt::Result {
+        match (self) {
+            Expr::Print  (expr) => write!(f, "print {}", expr),
+            Expr::Add    (expr) => write!(f, "+ {} {}", expr.0, expr.1),
+            Expr::Sub    (expr) => write!(f, "- {} {}", expr.0, expr.1),
+            Expr::Mul    (expr) => write!(f, "* {} {}", expr.0, expr.1),
+            Expr::Div    (expr) => write!(f, "/ {} {}", expr.0, expr.1),
+            Expr::Get    (expr) => write!(f, "get {} {}", expr.0, expr.1),
+            Expr::Push   (expr) => write!(f, "push {} {}", expr.0, expr.1),
+            Expr::Insert (expr) => write!(f, "insert {} {} {}", expr.0, expr.1, expr.2),
+            Expr::Set    (expr) => write!(f, "set {} {} {}", expr.0, expr.1, expr.2),
+            Expr::Len    (expr) => write!(f, "len {}", expr),
+            Expr::FSRead (expr) => write!(f, "fsread {}", expr),
+            Expr::Lit    (lit)  => write!(f, "{}", lit),
+            Expr::If     (expr) => write!(f, "if {} {} {}", expr.0, expr.1, expr.2),
+            Expr::Range  (expr) => write!(f, "range {} {}", expr.0, expr.1),
+        }
+    }
+}
+
+
 #[derive(Debug)]
 pub enum Lit {
     Bool(bool),
@@ -30,4 +53,16 @@ pub enum Lit {
     Float(f128),
     String(String),
     ExprQueue
+}
+
+impl fmt::Display for Lit {
+    fn fmt(&self, f : &mut fmt::Formatter<'_>) -> fmt::Result {
+        match (self) {
+            Lit::Bool      (v) => if (*v) { write!(f, "true") } else { write!(f, "false") },
+            Lit::Int       (v) => write!(f, "{}", v),
+            Lit::Float     (v) => write!(f, "{}", v),
+            Lit::String    (v) => write!(f, "{:?}", v),
+            Lit::ExprQueue     => write!(f, "queue")
+        }
+    }
 }
