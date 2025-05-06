@@ -36,8 +36,17 @@ impl Execute for Expr {
             Self::Len(args) => todo!(),
             Self::FSRead(args) => todo!(),
             Self::Lit(lit) => lit.execute(e),
-            Self::If(args) => todo!(),
-            Self::Range(args) => todo!(),
+            Self::If(args) => {
+                let c = args.0.execute(e);
+                let t = args.1.execute(e);
+                let f = args.2.execute(e);
+                Self::exec_if(e, c, t, f)
+            },
+            Self::Range(args) => {
+                let i0 = args.0.execute(e);
+                let i1 = args.1.execute(e);
+                Self::exec_range(e, i0, i1)
+            }
         }
     }
 }
@@ -83,6 +92,28 @@ impl Expr {
                                         .map_or(Value::Error, |v| Value::Array(v)),
             Value::Array     (q) => q.get(i0..i1).map_or(Value::Error, |v| Value::Array(v.to_vec()))
         }
+    }
+
+    fn exec_if(_e : &mut Executor, c : Value, t : Value, f : Value) -> Value {
+        let c = match (c) {
+            Value::Unit          => { return Value::Error; },
+            Value::Bool      (v) => v,
+            Value::Int       (v) => v != 0,
+            Value::Float     (_) => { return Value::Error; },
+            Value::String    (_) => { return Value::Error; },
+            Value::Error         => { return Value::Error; },
+            Value::ExprQueue     => { return Value::Error; },
+            Value::Array     (_) => { return Value::Error; },
+        };
+        if (c) { t } else { f }
+    }
+
+    fn exec_range(_e : &mut Executor, i0 : Value, i1 : Value) -> Value {
+        let Value::Int(i0) = i0
+            else { return Value::Error };
+        let Value::Int(i1) = i1
+            else { return Value::Error };
+        Value::Array((i0..i1).map(|v| Value::Int(v)).collect())
     }
 
 }
