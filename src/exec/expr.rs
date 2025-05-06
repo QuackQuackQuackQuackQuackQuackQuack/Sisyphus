@@ -1,6 +1,8 @@
 use crate::expr::{ Expr, Lit };
 use crate::exec::{ Executor, Value };
 use crate::iter::IteratorExt;
+use crate::parser;
+use std::process;
 
 
 pub trait Execute {
@@ -33,7 +35,10 @@ impl Execute for Expr {
             Self::Inserts(args) => todo!(),
             Self::Set(args) => todo!(),
             Self::Sets(args) => todo!(),
-            Self::Len(args) => Self::exec_len(e, args.execute(e)),
+            Self::Len(args) => {
+                let q = args.execute(e);
+                Self::exec_len(e, q)
+            },
             Self::FSRead(args) => todo!(),
             Self::Lit(lit) => lit.execute(e),
             Self::If(args) => todo!(),
@@ -96,6 +101,29 @@ impl Expr {
             Value::Int       (_) => Value::Error,
             Value::Float     (_) => Value::Error,
             Value::Error         => Value::Error
+        }
+    }
+
+    // Returns the resulting array/string/queue
+    fn exec_push (e : &mut Executor, q : Value, v : Value) -> Value {
+        match (q) {
+            Value::String(str)     => Value::String(str + &v.to_string()),
+            Value::Array(mut arr)  => { arr.push(v); Value::Array(arr) },
+            Value::Unit            => Value::Error,
+            Value::ExprQueue       => { 
+                match parser::parse(&v.to_string()) {
+                    Ok(val) => e.push_exprs(val),
+                    Err(err) => {
+                        err.print_formatted();
+                        process::exit(1);
+                    },
+                }
+                Value::ExprQueue
+            },
+            Value::Bool      (_)   => Value::Error,
+            Value::Int       (_)   => Value::Error,
+            Value::Float     (_)   => Value::Error,
+            Value::Error           => Value::Error
         }
     }
 
