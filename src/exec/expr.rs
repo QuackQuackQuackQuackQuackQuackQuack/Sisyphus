@@ -29,7 +29,11 @@ impl Execute for Expr {
                 let i1 = args.2.execute(e);
                 Self::exec_gets(e, q, i0, i1)
             },
-            Self::Push(args) => todo!(),
+            Self::Push(args) => {
+                let q = args.0.execute(e);
+                let v = args.1.execute(e);
+                Self::exec_push(e, q, v)
+            },
             Self::Pushes(args) => todo!(),
             Self::Insert(args) => todo!(),
             Self::Inserts(args) => todo!(),
@@ -136,13 +140,11 @@ impl Expr {
         }
     }
 
-    fn exec_set (e : &mut Executor, q : Value, i : Value) -> Value {
+    fn exec_set(e : &mut Executor, q : Value, i : Value) -> Value {
         let Value::Int(i) = i
             else { return Value::Error; };
         if (i < 0) { return Value::Error; }
-        match (q) {
-            
-        }
+        todo!()
     }
 
     fn exec_if(_e : &mut Executor, c : Value, t : Value, f : Value) -> Value {
