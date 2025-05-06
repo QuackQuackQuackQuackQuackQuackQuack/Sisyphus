@@ -24,7 +24,7 @@ impl Execute for Expr {
             Self::Inserts(args) => todo!(),
             Self::Set(args) => todo!(),
             Self::Sets(args) => todo!(),
-            Self::Len(args) => todo!(),
+            Self::Len(args) => Self::exec_len(e, args.execute(e)),
             Self::FSRead(args) => todo!(),
             Self::Lit(lit) => lit.execute(e),
             Self::If(args) => todo!(),
@@ -73,6 +73,29 @@ impl Expr {
                                         .skip(i0).next_n_exact(i1 - i0)
                                         .map_or(Value::Error, |v| Value::Array(v)),
             Value::Array     (q) => q.get(i0..i1).map_or(Value::Error, |v| Value::Array(v.to_vec()))
+        }
+
+    }
+
+    fn exec_len (e : &mut Executor, q : Value) -> Value {
+        match (q) {
+            Value::String(v)     => Value::Int( v.len() as i128 ),
+            Value::Array(v)      => Value::Int( v.len() as i128 ),
+            Value::ExprQueue     => Value::Int( e.exprs.len() as i128 ),
+            Value::Unit          => Value::Error,
+            Value::Bool      (_) => Value::Error,
+            Value::Int       (_) => Value::Error,
+            Value::Float     (_) => Value::Error,
+            Value::Error         => Value::Error
+        }
+    }
+
+    fn exec_set (e : &mut Executor, q : Value, i : Value) -> Value {
+        let Value::Int(i) = i
+            else { return Value::Error; };
+        if (i < 0) { return Value::Error; }
+        match (q) {
+            
         }
     }
 
