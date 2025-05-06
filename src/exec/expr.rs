@@ -16,8 +16,17 @@ impl Execute for Expr {
             Self::Sub(args) => args.0.execute(e) - args.1.execute(e),
             Self::Mul(args) => args.0.execute(e) * args.1.execute(e),
             Self::Div(args) => args.0.execute(e) / args.1.execute(e),
-            Self::Get(args) => Self::exec_get(&mut*e, args.0.execute(e), args.1.execute(e)),
-            Self::Gets(args) => todo!(),
+            Self::Get(args) => {
+                let q = args.0.execute(e);
+                let i = args.1.execute(e);
+                Self::exec_get(e, q, i)
+            },
+            Self::Gets(args) => {
+                let q  = args.0.execute(e);
+                let i0 = args.1.execute(e);
+                let i1 = args.2.execute(e);
+                Self::exec_gets(e, q, i0, i1)
+            },
             Self::Push(args) => todo!(),
             Self::Pushes(args) => todo!(),
             Self::Insert(args) => todo!(),
