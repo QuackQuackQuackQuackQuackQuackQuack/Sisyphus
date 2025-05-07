@@ -176,11 +176,39 @@ impl Expr {
         }
     }
 
-    fn exec_set (e : &mut Executor, q : Value, i : Value) -> Value {
+    fn exec_set (e : &mut Executor, q : Value, i : Value, v : Value) -> Value {
         let Value::Int(i) = i
             else { return Value::Error; };
         if (i < 0) { return Value::Error; }
-        todo!()
+        let i = i as usize;
+        match (q) {
+            Value::Unit          => Value::Error,
+            Value::Bool      (_) => Value::Error,
+            Value::Int       (_) => Value::Error,
+            Value::Float     (_) => Value::Error,
+            Value::String  (str) => {
+                let Value::String(v) = v
+                    else { return Value::Error; };
+                if (v.len() != 1) { return Value::Error; }
+                let Some(first_slice) = str.get(..i) else { return Value::Error };
+                let Some(second_slice) = str.get((i+1)..) else { return Value::Error };
+                Value::String(String::from(first_slice) + &v + second_slice)
+            },
+            Value::Error         => Value::Error,
+            Value::ExprQueue     => {
+                let mut parsed_val = match parser::parse(&v.to_string()) {
+                    Ok(val) => val,
+                    Err(err) => {
+                        err.print_formatted();
+                        process::exit(1);
+                    },
+                };
+                let mut expr_at_i = e.exprs.get_mut(i); 
+                expr_at_i = parsed_val.get_mut(0);
+                Value::ExprQueue
+            },
+            Value::Array   (arr) => todo!()
+        }
     }
 
     fn exec_if(_e : &mut Executor, c : Value, t : Value, f : Value) -> Value {
