@@ -180,9 +180,7 @@ impl Expr {
         let Value::Int(i) = i
             else { return Value::Error; };
         if (i < 0) { return Value::Error; }
-        match (q) {
-            
-        }
+        todo!()
     }
 
     fn exec_if(_e : &mut Executor, c : Value, t : Value, f : Value) -> Value {
