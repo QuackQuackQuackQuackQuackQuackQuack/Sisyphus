@@ -31,10 +31,14 @@ impl Execute for Expr {
             },
             Self::Push(args) => {
                 let q = args.0.execute(e);
-                let v = args.1.execute(e);
-                Self::exec_push(e, q, v)
+                let val = args.1.execute(e);
+                Self::exec_push(e, q, val)
             },
-            Self::Pushes(args) => todo!(),
+            Self::Pushes(args) => {
+                let q = args.0.execute(e);
+                let val = args.1.execute(e);
+                Self::exec_pushes(e, q, val)
+            },
             Self::Insert(args) => todo!(),
             Self::Inserts(args) => todo!(),
             Self::Set(args) => todo!(),
@@ -149,7 +153,39 @@ impl Expr {
         }
     }
 
-    fn exec_set(e : &mut Executor, q : Value, i : Value) -> Value {
+    fn exec_pushes (e : &mut Executor, q : Value, v : Value) -> Value {
+        let Value::Array(mut v) = v
+            else { return Value::Error; };
+        match (q) {
+            Value::String(mut str)     => {
+                for val in v {
+                    str += &val.to_string();
+                }
+                Value::String(str)
+            },
+            Value::Array(mut arr)  => { arr.append(&mut v); Value::Array(arr) },
+            Value::Unit            => Value::Error,
+            Value::ExprQueue       => { 
+                let v = v.into_iter().map(|v|{
+                    match parser::parse(&v.to_string()) {
+                        Ok(val) => val,
+                        Err(err) => {
+                            err.print_formatted();
+                            process::exit(1);
+                        },
+                    }
+                }).flatten();
+                e.exprs.extend(v);
+                Value::ExprQueue
+            },
+            Value::Bool      (_)   => Value::Error,
+            Value::Int       (_)   => Value::Error,
+            Value::Float     (_)   => Value::Error,
+            Value::Error           => Value::Error
+        }
+    }
+
+    fn exec_set (e : &mut Executor, q : Value, i : Value) -> Value {
         let Value::Int(i) = i
             else { return Value::Error; };
         if (i < 0) { return Value::Error; }
