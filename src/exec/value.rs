@@ -26,7 +26,7 @@ impl Add for Value {
             (Self::Int(a), Self::Int(b))                                       => Self::Int(a + b),
             (Self::Int(a), Self::Float(b))   | (Self::Float(b), Self::Int(a))  => Self::Float(f128::from(a) + b),
             (Self::Float(a), Self::Float(b))                                   => Self::Float(a + b),
-            (Self::String(_), _)             | (_, Self::String(_))            => Self::String(format!("{}{}", self, rhs)),
+            (a@Self::String(_), b)           | (a, b@Self::String(_))          => Self::String(format!("{}{}", a, b)),
             (Self::Error, _)                 | (_, Self::Error)                => Self::Error,
             (Self::ExprQueue, _)             | (_, Self::ExprQueue)            => Self::Error,
             (Self::Array(mut a), Self::Array(mut b))                           => Self::Array( {
@@ -54,7 +54,8 @@ impl Sub for Value {
             (Self::Float(a), Self::Float(b))                        => Self::Float(*a - *b),
             (Self::String(_), _)             | (_, Self::String(_)) => Self::Error,
             (Self::Error, _)                 | (_, Self::Error)     => Self::Error,
-            (Self::ExprQueue, _)             | (_, Self::ExprQueue)            => Self::Error
+            (Self::ExprQueue, _)             | (_, Self::ExprQueue) => Self::Error,
+            (Self::Array(_), _)              | (_, Self::Array(_))  => Self::Error
         }
     }
 }
@@ -73,7 +74,14 @@ impl Mul for Value {
             (Self::String(a), Self::Int(b))  | (Self::Int(b), Self::String(a)) => if (*b >= 0) { Self::String(a.repeat(*b as usize)) } else { Self::Error },
             (Self::String(_), _)             | (_, Self::String(_))            => Self::Error,
             (Self::Error, _)                 | (_, Self::Error)                => Self::Error,
-            (Self::ExprQueue, _)             | (_, Self::ExprQueue)            => Self::Error
+            (Self::ExprQueue, _)             | (_, Self::ExprQueue)            => Self::Error,
+            (Self::Array(a), Self::Int(b))   | (Self::Int(b), Self::Array(a))  => {
+                let b = *b as usize;
+                let mut out = Vec::with_capacity(a.len() * b);
+                for _ in 0..b { out.extend(a.iter().cloned()); }
+                Self::Array(out)
+            },
+            (Self::Array(_), _)              | (_, Self::Array(_))             => Self::Error
         }
     }
 }
@@ -94,7 +102,8 @@ impl Div for Value {
             (Self::Float(a), Self::Float(b))                                   => Self::Float(*a / *b), 
             (Self::String(_), _)             | (_, Self::String(_))            => Self::Error,
             (Self::Error, _)                 | (_, Self::Error)                => Self::Error,
-            (Self::ExprQueue, _)             | (_, Self::ExprQueue)            => Self::Error
+            (Self::ExprQueue, _)             | (_, Self::ExprQueue)            => Self::Error,
+            (Self::Array(_), _)              | (_, Self::Array(_))             => Self::Error
         }
     }
 }
@@ -108,7 +117,15 @@ impl fmt::Display for Value {
             Self::Float(v)  => write!(f, "{}", v),
             Self::String(v) => write!(f, "{}", v),
             Self::Error     => write!(f, "error"),
-            Self::ExprQueue => write!(f, "exprqueue")
+            Self::ExprQueue => write!(f, "exprqueue"),
+            Self::Array(v)  => {
+                write!(f, "[")?;
+                for (i, u,) in v.iter().enumerate() {
+                    if (i != 0) { write!(f, ", ")?; }
+                    write!(f, "{}", u)?;
+                }
+                write!(f, "]")
+            }
         }
     }
 }

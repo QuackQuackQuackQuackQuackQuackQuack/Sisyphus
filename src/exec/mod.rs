@@ -1,4 +1,4 @@
-use crate::expr::{ Expr, Lit };
+use crate::expr::Expr;
 use std::collections::VecDeque;
 
 

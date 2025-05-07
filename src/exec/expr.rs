@@ -2,7 +2,7 @@ use crate::expr::{ Expr, Lit };
 use crate::exec::{ Executor, Value };
 use crate::iter::IteratorExt;
 use crate::parser;
-use std::process;
+use std::{ fs, process };
 
 
 pub trait Execute {
@@ -43,8 +43,10 @@ impl Execute for Expr {
                 let q = args.execute(e);
                 Self::exec_len(e, q)
             },
-            Self::FSRead(args) => todo!(),
-            Self::Lit(lit) => lit.execute(e),
+            Self::FSRead(args) => {
+                let fname = args.execute(e);
+                Self::exec_fsread(e, fname)
+            },
             Self::If(args) => {
                 let c = args.0.execute(e);
                 let t = args.1.execute(e);
@@ -55,7 +57,14 @@ impl Execute for Expr {
                 let i0 = args.0.execute(e);
                 let i1 = args.1.execute(e);
                 Self::exec_range(e, i0, i1)
+            },
+            Self::Str(arg) => Value::String(arg.execute(e).to_string()),
+            Self::Int(arg) => {
+                if let Ok(i) = arg.execute(e).to_string().parse::<i128>() {
+                    Value::Int(i)
+                } else { Value::Error }
             }
+            Self::Lit(lit) => lit.execute(e)
         }
     }
 }
@@ -145,6 +154,11 @@ impl Expr {
             else { return Value::Error; };
         if (i < 0) { return Value::Error; }
         todo!()
+    }
+
+    fn exec_fsread(_e : &mut Executor, fname : Value) -> Value {
+        let fname = fname.to_string();
+        fs::read_to_string(fname).map_or(Value::Error, |v| Value::String(v))
     }
 
     fn exec_if(_e : &mut Executor, c : Value, t : Value, f : Value) -> Value {

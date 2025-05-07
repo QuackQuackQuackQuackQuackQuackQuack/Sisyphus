@@ -32,16 +32,19 @@ peg::parser! { grammar sisyphys_parser() for str {
         / "*"       __ a:expr_args(2) { destructure_expr_args!( a => l, r,    ); Expr::Mul    (Box::new((l, r,))) }
         / "/"       __ a:expr_args(2) { destructure_expr_args!( a => l, r,    ); Expr::Div    (Box::new((l, r,))) }
         / "get"     __ a:expr_args(2) { destructure_expr_args!( a => q, i,    ); Expr::Get    (Box::new((q, i,))) }
-        / "gets"    __ a:expr_args(3) { destructure_expr_args!( a => q, s, e  ); Expr::Gets   (Box::new((q, s, e)))}
+        / "gets"    __ a:expr_args(3) { destructure_expr_args!( a => q, s, e  ); Expr::Gets   (Box::new((q, s, e))) }
         / "push"    __ a:expr_args(2) { destructure_expr_args!( a => q, v,    ); Expr::Push   (Box::new((q, v,))) }
-        / "pushes"  __ a:expr_args(2) { destructure_expr_args!( a => q, l,    ); Expr::Pushes (Box::new((q, l,)))}
+        / "pushes"  __ a:expr_args(2) { destructure_expr_args!( a => q, l,    ); Expr::Pushes (Box::new((q, l,))) }
         / "insert"  __ a:expr_args(3) { destructure_expr_args!( a => q, i, v, ); Expr::Insert (Box::new((q, i, v,))) }
-        / "inserts" __ a:expr_args(3) { destructure_expr_args!( a => q, s, l, ); Expr::Inserts(Box::new((q, s, l,)))}
+        / "inserts" __ a:expr_args(3) { destructure_expr_args!( a => q, s, l, ); Expr::Inserts(Box::new((q, s, l,))) }
         / "set"     __ a:expr_args(3) { destructure_expr_args!( a => q, i, v, ); Expr::Set    (Box::new((q, i, v,))) }
-        / "sets"    __ a:expr_args(3) { destructure_expr_args!( a => q, s, l, ); Expr::Sets   (Box::new((q, s, l,)))}
+        / "sets"    __ a:expr_args(3) { destructure_expr_args!( a => q, s, l, ); Expr::Sets   (Box::new((q, s, l,))) }
         / "len"     __ a:expr_args(1) { destructure_expr_args!( a => q,       ); Expr::Print  (Box::new(q)) }
         / "fsread"  __ a:expr_args(1) { destructure_expr_args!( a => f,       ); Expr::FSRead (Box::new(f)) }
         / "if"      __ a:expr_args(3) { destructure_expr_args!( a => c, t, f, ); Expr::If     (Box::new((c, t, f))) }
+        / "range"   __ a:expr_args(2) { destructure_expr_args!( a => i0, i1,  ); Expr::Range  (Box::new((i0, i1,))) }
+        / "str"     __ a:expr_args(1) { destructure_expr_args!( a => v,       ); Expr::Str    (Box::new(v)) }
+        / "int"     __ a:expr_args(1) { destructure_expr_args!( a => v,       ); Expr::Int    (Box::new(v)) }
         / l:lit() { Expr::Lit(l) }
 
     rule expr_args(n : usize) -> Vec<Expr>
