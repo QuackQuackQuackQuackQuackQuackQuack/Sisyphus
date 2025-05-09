@@ -1,6 +1,6 @@
 use sisyphus;
 use sisyphus::expr::{ Expr, Lit };
-use sisyphus::exec::{ Executor, Execute };
+use sisyphus::exec::Executor;
 
 
 fn main() {

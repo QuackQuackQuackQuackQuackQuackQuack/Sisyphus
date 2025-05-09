@@ -2,7 +2,7 @@ use core::fmt;
 use f128::f128;
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expr {
     Print(Box<Expr>), // message
     Add(Box<(Expr, Expr,)>), // left, right
@@ -54,7 +54,7 @@ impl fmt::Display for Expr {
 }
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Lit {
     Bool(bool),
     Int(i128),

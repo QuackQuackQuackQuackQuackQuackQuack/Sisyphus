@@ -6,12 +6,12 @@ use std::{ fs, process };
 
 
 pub trait Execute {
-    fn execute(self, e : &mut Executor) -> Value;
+    fn execute(&self, e : &mut Executor) -> Value;
 }
 
 
 impl Execute for Expr {
-    fn execute(self, e : &mut Executor) -> Value {
+    fn execute(&self, e : &mut Executor) -> Value {
         match (self) {
             Self::Print(expr) => { println!("{}", expr.execute(e)); Value::Unit },
             Self::Add(args) => args.0.execute(e) + args.1.execute(e),
@@ -86,7 +86,7 @@ impl Expr {
             Value::Float     (_) => Value::Error,
             Value::String    (v) => v.chars().nth(i).map_or(Value::Error, |ch| Value::String(ch.to_string())),
             Value::Error         => Value::Error,
-            Value::ExprQueue     => e.exprs.get(i).map_or(Value::Error, |v| Value::String(v.to_string())),
+            Value::ExprQueue     => e.get_expr(i).map_or(Value::Error, |v| Value::String(v.to_string())),
             Value::Array     (q) => q.get(i).map_or(Value::Error, |v| v.clone())
         }
     }
@@ -108,20 +108,21 @@ impl Expr {
                                         .skip(i0).next_n_exact(i1 - i0)
                                         .map_or(Value::Error, |v| Value::Array(v)),
             Value::Error         => Value::Error,
-            Value::ExprQueue     => e.exprs.iter()
-                                        .map(|expr| Value::String(expr.to_string()))
-                                        .skip(i0).next_n_exact(i1 - i0)
-                                        .map_or(Value::Error, |v| Value::Array(v)),
+            Value::ExprQueue     => {
+                let Some(exprs) = e.get_exprs_values(i0, i1)
+                    else { return Value::Error; };
+                Value::Array(exprs)
+            },
             Value::Array     (q) => q.get(i0..i1).map_or(Value::Error, |v| Value::Array(v.to_vec()))
         }
 
     }
 
-    fn exec_len (e : &mut Executor, q : Value) -> Value {
+    fn exec_len(e : &mut Executor, q : Value) -> Value {
         match (q) {
             Value::String(v)     => Value::Int( v.len() as i128 ),
             Value::Array(v)      => Value::Int( v.len() as i128 ),
-            Value::ExprQueue     => Value::Int( e.exprs.len() as i128 ),
+            Value::ExprQueue     => Value::Int( e.len_exprs() as i128 ),
             Value::Unit          => Value::Error,
             Value::Bool      (_) => Value::Error,
             Value::Int       (_) => Value::Error,
@@ -131,7 +132,7 @@ impl Expr {
     }
 
     // Returns the resulting array/string/queue
-    fn exec_push (e : &mut Executor, q : Value, v : Value) -> Value {
+    fn exec_push(e : &mut Executor, q : Value, v : Value) -> Value {
         match (q) {
             Value::String(str)     => Value::String(str + &v.to_string()),
             Value::Array(mut arr)  => { arr.push(v); Value::Array(arr) },
@@ -153,7 +154,7 @@ impl Expr {
         }
     }
 
-    fn exec_pushes (e : &mut Executor, q : Value, v : Value) -> Value {
+    fn exec_pushes(e : &mut Executor, q : Value, v : Value) -> Value {
         let Value::Array(mut v) = v
             else { return Value::Error; };
         match (q) {
@@ -165,8 +166,8 @@ impl Expr {
             },
             Value::Array(mut arr)  => { arr.append(&mut v); Value::Array(arr) },
             Value::Unit            => Value::Error,
-            Value::ExprQueue       => { 
-                let v = v.into_iter().map(|v|{
+            Value::ExprQueue       => {
+                let v = v.into_iter().map(|v| {
                     match parser::parse(&v.to_string()) {
                         Ok(val) => val,
                         Err(err) => {
@@ -175,7 +176,7 @@ impl Expr {
                         },
                     }
                 }).flatten();
-                e.exprs.extend(v);
+                e.push_exprs(v);
                 Value::ExprQueue
             },
             Value::Bool      (_)   => Value::Error,
@@ -185,7 +186,7 @@ impl Expr {
         }
     }
 
-    fn exec_set (e : &mut Executor, q : Value, i : Value, v : Value) -> Value {
+    fn exec_set(e : &mut Executor, q : Value, i : Value, v : Value) -> Value {
         let Value::Int(i) = i
             else { return Value::Error; };
         if (i < 0) { return Value::Error; }
@@ -205,15 +206,14 @@ impl Expr {
             },
             Value::Error         => Value::Error,
             Value::ExprQueue     => {
-                let mut parsed_val = match parser::parse(&v.to_string()) {
+                let parsed_val = match (parser::parse(&v.to_string())) {
                     Ok(val) => val,
                     Err(err) => {
                         err.print_formatted();
                         process::exit(1);
                     },
                 };
-                let mut expr_at_i = e.exprs.get_mut(i); 
-                expr_at_i = parsed_val.get_mut(0);
+                e.sets_expr(i, parsed_val); 
                 Value::ExprQueue
             },
             Value::Array   (arr) => todo!()
@@ -251,12 +251,12 @@ impl Expr {
 
 
 impl Execute for Lit {
-    fn execute(self, _e : &mut Executor) -> Value {
+    fn execute(&self, _e : &mut Executor) -> Value {
         match (self) {
-            Self::Bool      (v) => Value::Bool(v),
-            Self::Int       (v) => Value::Int(v),
-            Self::Float     (v) => Value::Float(v),
-            Self::String    (v) => Value::String(v),
+            Self::Bool      (v) => Value::Bool(*v),
+            Self::Int       (v) => Value::Int(*v),
+            Self::Float     (v) => Value::Float(*v),
+            Self::String    (v) => Value::String(v.clone()),
             Self::ExprQueue     => Value::ExprQueue
         }
     }

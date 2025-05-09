@@ -3,7 +3,7 @@ use core::ops::{ Add, Sub, Mul, Div };
 use f128::f128;
 
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Value {
     Unit,
     Bool(bool),
