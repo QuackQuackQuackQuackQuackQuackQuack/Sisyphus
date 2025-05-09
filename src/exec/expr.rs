@@ -41,7 +41,12 @@ impl Execute for Expr {
             },
             Self::Insert(args) => todo!(),
             Self::Inserts(args) => todo!(),
-            Self::Set(args) => todo!(),
+            Self::Set(args) => {
+                let q = args.0.execute(e);
+                let i = args.1.execute(e);
+                let v = args.2.execute(e);
+                Self::exec_set(e, q, i ,v)
+            },
             Self::Sets(args) => todo!(),
             Self::Len(args) => {
                 let q = args.execute(e);
@@ -212,11 +217,20 @@ impl Expr {
                         process::exit(1);
                     },
                 };
-                let mut expr_at_i = e.exprs.get_mut(i); 
-                expr_at_i = parsed_val.get_mut(0);
+
+                let Some(expr_at_i) = e.exprs.get_mut(i)
+                    else { return Value::Error; }; 
+                let Some(first_parsed_val) = parsed_val.get(0) 
+                    else { return Value::Error; };
+                *expr_at_i = first_parsed_val.clone();
                 Value::ExprQueue
             },
-            Value::Array   (arr) => todo!()
+            Value::Array   (mut arr) => {
+                let Some(arr_at_i) = arr.get_mut(i) 
+                    else { return Value::Error; };
+                *arr_at_i = v;
+                Value::Array(arr)
+            }
         }
     }
 
