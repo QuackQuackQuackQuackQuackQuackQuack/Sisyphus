@@ -41,8 +41,18 @@ impl Execute for Expr {
             },
             Self::Insert(args) => todo!(),
             Self::Inserts(args) => todo!(),
-            Self::Set(args) => todo!(),
-            Self::Sets(args) => todo!(),
+            Self::Set(args) => {
+                let q = args.0.execute(e);
+                let i = args.1.execute(e);
+                let v = args.2.execute(e);
+                Self::exec_set(e, q, i ,v)
+            },
+            Self::Sets(args) => {
+                let q = args.0.execute(e);
+                let i = args.1.execute(e);
+                let v = args.2.execute(e);
+                Self::exec_set(e, q, i ,v)
+            },
             Self::Len(args) => {
                 let q = args.execute(e);
                 Self::exec_len(e, q)
@@ -216,8 +226,31 @@ impl Expr {
                 e.sets_expr(i, parsed_val); 
                 Value::ExprQueue
             },
-            Value::Array   (arr) => todo!()
+            Value::Array   (mut arr) => {
+                let Some(arr_at_i) = arr.get_mut(i) 
+                    else { return Value::Error; };
+                *arr_at_i = v;
+                Value::Array(arr)
+            }
         }
+    }
+
+    // q is an array, start_index is an int, and v is an array
+    fn exec_sets (e : &mut Executor, mut q : Value, start_index : Value, v : Value) -> Value {
+        let Value::Array(v) = v
+            else { return Value::Error; };
+        let Value::Int(start_index) = start_index 
+            else { return Value::Error; };
+        for i in 0..v.len() {
+            let Some(val) = v.get(i) else 
+                { return Value::Error };
+            let new_q = Self::exec_set(e, q, Value::Int(start_index + i as i128), val.clone());
+            if let Value::Error = new_q {
+                return Value::Error;
+            }
+            q = new_q
+        }
+        q
     }
 
     fn exec_fsread(_e : &mut Executor, fname : Value) -> Value {
