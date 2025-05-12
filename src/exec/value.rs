@@ -1,9 +1,9 @@
 use core::fmt;
-use core::ops::{ Add, Sub, Mul, Div };
+use core::ops::{ Add, Sub, Mul, Div, Rem, BitAnd, BitOr, BitXor, Not };
 use f128::f128;
 
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Value {
     Unit,
     Bool(bool),
@@ -104,6 +104,25 @@ impl Div for Value {
             (Self::Error, _)                 | (_, Self::Error)                => Self::Error,
             (Self::ExprQueue, _)             | (_, Self::ExprQueue)            => Self::Error,
             (Self::Array(_), _)              | (_, Self::Array(_))             => Self::Error
+        }
+    }
+}
+
+impl Not for Value {
+    type Output = Value;
+    fn not(self) -> Self::Output {
+        match (self) {
+            Self::Bool(b) => Self::Bool(!b),
+            Self::Unit => Self::Error,
+            Self::Int(i) => Self::Int(-i),
+            Self::Float(f) => Self::Float(-f),
+            Self::String(s) => Self::String(s.chars().rev().collect::<String>()),
+            Self::Error => Self::Unit, // TODO: yes, we're doing this
+            Self::ExprQueue => Self::Error,
+            Self::Array(mut arr) => {
+                arr.reverse();
+                Self::Array(arr)
+            }
         }
     }
 }
