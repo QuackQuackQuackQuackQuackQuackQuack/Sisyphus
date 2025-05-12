@@ -82,4 +82,33 @@ impl Executor {
         Ok(())
     }
 
+    pub fn insert_expr(&mut self, index : usize, expr : Expr) -> Result<(), ()> { 
+        match (index) {
+            0 => {
+                // don't use expr
+                // push everything forward
+                self.queued_exprs.push_front(self.latest_expr.clone());
+                Ok(())
+            },
+            1.. => {
+                if (index > self.queued_exprs.len()) {
+                    return Err(());
+                }
+                self.queued_exprs.insert(index - 1, expr);
+                Ok(())
+            }
+
+        }
+    }
+    
+    pub fn inserts_expr<I>(&mut self, start_index : usize, exprs : I) -> Result<(), ()>
+    where
+        I : IntoIterator<Item = Expr>
+    {
+        for (i, expr) in exprs.into_iter().enumerate() {
+            let index = start_index + i;
+            self.insert_expr(index, expr)?;
+        }
+        Ok(())
+    }
 }

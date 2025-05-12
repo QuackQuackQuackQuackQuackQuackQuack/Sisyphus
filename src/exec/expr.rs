@@ -39,8 +39,18 @@ impl Execute for Expr {
                 let val = args.1.execute(e);
                 Self::exec_pushes(e, q, val)
             },
-            Self::Insert(args) => todo!(),
-            Self::Inserts(args) => todo!(),
+            Self::Insert(args) => {
+                let q = args.0.execute(e);
+                let i = args.1.execute(e);
+                let v = args.2.execute(e);
+                Self::exec_insert(e, q, i ,v)
+            },
+            Self::Inserts(args) => {
+                let q = args.0.execute(e);
+                let i = args.1.execute(e);
+                let v = args.2.execute(e);
+                Self::exec_inserts(e, q, i ,v)
+            },
             Self::Set(args) => {
                 let q = args.0.execute(e);
                 let i = args.1.execute(e);
@@ -51,7 +61,7 @@ impl Execute for Expr {
                 let q = args.0.execute(e);
                 let i = args.1.execute(e);
                 let v = args.2.execute(e);
-                Self::exec_set(e, q, i ,v)
+                Self::exec_sets(e, q, i ,v)
             },
             Self::Len(args) => {
                 let q = args.execute(e);
@@ -196,7 +206,7 @@ impl Expr {
         }
     }
 
-    fn exec_set(e : &mut Executor, q : Value, i : Value, v : Value) -> Value {
+    fn exec_set (e : &mut Executor, q : Value, i : Value, v : Value) -> Value {
         let Value::Int(i) = i
             else { return Value::Error; };
         if (i < 0) { return Value::Error; }
@@ -223,8 +233,10 @@ impl Expr {
                         process::exit(1);
                     },
                 };
-                e.sets_expr(i, parsed_val); 
-                Value::ExprQueue
+                match (e.sets_expr(i, parsed_val)) {
+                    Ok(_) => Value::ExprQueue,
+                    Err(_) => Value::Error
+                }
             },
             Value::Array   (mut arr) => {
                 let Some(arr_at_i) = arr.get_mut(i) 
@@ -272,12 +284,68 @@ impl Expr {
         if (c) { t } else { f }
     }
 
-    fn exec_range(_e : &mut Executor, i0 : Value, i1 : Value) -> Value {
+    fn exec_range (_e : &mut Executor, i0 : Value, i1 : Value) -> Value {
         let Value::Int(i0) = i0
             else { return Value::Error };
         let Value::Int(i1) = i1
             else { return Value::Error };
         Value::Array((i0..i1).map(|v| Value::Int(v)).collect())
+    }
+
+    fn exec_insert (e : &mut Executor, q : Value, i : Value, v : Value) -> Value {
+        let Value::Int(i) = i
+            else { return Value::Error; };
+        if (i < 0) { return Value::Error; }
+        let i = i as usize;
+        match (q) {
+            Value::Unit          => Value::Error,
+            Value::Bool      (_) => Value::Error,
+            Value::Int       (_) => Value::Error,
+            Value::Float     (_) => Value::Error,
+            Value::String  (str) => {
+                let Value::String(v) = v
+                    else { return Value::Error; };
+                let Some(first_slice) = str.get(..i) else { return Value::Error };
+                let Some(second_slice) = str.get(i..) else { return Value::Error };
+                Value::String(String::from(first_slice) + &v + second_slice)
+            },
+            Value::Error         => Value::Error,
+            Value::ExprQueue     => {
+                let parsed_val = match (parser::parse(&v.to_string())) {
+                    Ok(val) => val,
+                    Err(err) => {
+                        err.print_formatted();
+                        process::exit(1);
+                    },
+                };
+                match (e.inserts_expr(i, parsed_val)) {
+                    Ok(_) => Value::ExprQueue,
+                    Err(_) => Value::Error
+                }
+            },
+            Value::Array   (mut arr) => {
+                if (i > arr.len()) { return Value::Error }
+                arr.insert(i, v);
+                Value::Array(arr)
+            }
+        }
+    }
+
+    fn exec_inserts (e : &mut Executor, mut q : Value, start_index : Value, v : Value) -> Value {
+        let Value::Array(v) = v
+            else { return Value::Error; };
+        let Value::Int(start_index) = start_index 
+            else { return Value::Error; };
+        for i in 0..v.len() {
+            let Some(val) = v.get(i) else 
+                { return Value::Error };
+            let new_q = Self::exec_insert(e, q, Value::Int(start_index + i as i128), val.clone());
+            if let Value::Error = new_q {
+                return Value::Error;
+            }
+            q = new_q
+        }
+        q
     }
 
 }
