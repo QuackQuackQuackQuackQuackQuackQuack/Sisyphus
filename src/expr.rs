@@ -9,7 +9,7 @@ pub enum Expr {
     Sub(Box<(Expr, Expr,)>), // left, right
     Mul(Box<(Expr, Expr,)>), // left, right
     Div(Box<(Expr, Expr,)>), // left, right
-    Not(Box<(Expr,)>), 
+    Not(Box<Expr>), 
     Equals(Box<(Expr, Expr)>),
     Get(Box<(Expr, Expr,)>), // iterable, index
     Gets(Box<(Expr, Expr, Expr)>), // iterable, start index, end index
@@ -50,7 +50,9 @@ impl fmt::Display for Expr {
             Expr::If      (expr) => write!(f, "if {} {} {}", expr.0, expr.1, expr.2),
             Expr::Range   (expr) => write!(f, "range {} {}", expr.0, expr.1),
             Expr::Str     (expr) => write!(f, "str {}", expr),
-            Expr::Int     (expr) => write!(f, "int {}", expr)
+            Expr::Int     (expr) => write!(f, "int {}", expr),
+            Expr::Not     (expr) => write!(f, "! {}", expr),
+            Expr::Equals  (expr) => write!(f, "{} = {}", expr.0, expr.1),
         }
     }
 }
