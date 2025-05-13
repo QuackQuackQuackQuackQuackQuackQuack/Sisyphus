@@ -1,0 +1,13 @@
+pushes
+    queue
+    if (= (int get queue 3) 0)
+        gets queue 0 0
+        gets queue 0 3
+
+print get queue 2
+
+push
+    queue
+    str (- (int get queue 1) 1)
+
+10

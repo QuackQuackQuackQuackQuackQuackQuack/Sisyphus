@@ -13,7 +13,11 @@ pub trait Execute {
 impl Execute for Expr {
     fn execute(&self, e : &mut Executor) -> Value {
         match (self) {
-            Self::Print(expr) => { println!("{}", expr.execute(e)); Value::Unit },
+            Self::Print(expr) => {
+                let v = expr.execute(e);
+                println!("{}", v);
+                v
+            },
             Self::Add(args) => args.0.execute(e) + args.1.execute(e),
             Self::Sub(args) => args.0.execute(e) - args.1.execute(e),
             Self::Mul(args) => args.0.execute(e) * args.1.execute(e),
@@ -90,7 +94,12 @@ impl Execute for Expr {
             },
             Self::Lit(lit) => lit.execute(e),
             Self::Not(arg) => !arg.execute(e),
-            Self::Equals(args) => Value::Bool(args.0.execute(e) == args.1.execute(e))
+            Self::Equals(args) => {
+                let l = args.0.execute(e);
+                let r = args.1.execute(e);
+                println!("{} {}", l, r);
+                Value::Bool(l == r)
+            }
         }
     }
 }

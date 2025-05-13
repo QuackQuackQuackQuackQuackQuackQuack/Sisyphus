@@ -10,7 +10,7 @@ pub enum Expr {
     Mul(Box<(Expr, Expr,)>), // left, right
     Div(Box<(Expr, Expr,)>), // left, right
     Not(Box<Expr>), 
-    Equals(Box<(Expr, Expr)>),
+    Equals(Box<(Expr, Expr,)>),
     Get(Box<(Expr, Expr,)>), // iterable, index
     Gets(Box<(Expr, Expr, Expr)>), // iterable, start index, end index
     Push(Box<(Expr, Expr,)>), // iterable, entry

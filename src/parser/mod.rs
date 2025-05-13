@@ -16,7 +16,7 @@ impl StringTerminator {
 
 
 pub fn parse<'l>(script : &'l str) -> Result<Vec<Expr>, ParserError<'l>> {
-    sisyphys_parser::script(&script).map_err(|e| ParserError::from_peg(script.lines().nth(e.location.line - 1).unwrap(), e))
+    sisyphys_parser::script(&script).map_err(|e| ParserError::from_peg(script.lines().nth(e.location.line - 1).unwrap_or(""), e))
 }
 
 
@@ -32,6 +32,7 @@ peg::parser! { grammar sisyphys_parser() for str {
         / "*"       __ a:expr_args(2) { destructure_expr_args!( a => l, r,    ); Expr::Mul    (Box::new((l, r,))) }
         / "/"       __ a:expr_args(2) { destructure_expr_args!( a => l, r,    ); Expr::Div    (Box::new((l, r,))) }
         / "!"       __ a:expr_args(1) { destructure_expr_args!( a => b,       ); Expr::Not    (Box::new(b,)) }
+        / "="       __ a:expr_args(2) { destructure_expr_args!( a => l, r,    ); Expr::Equals (Box::new((l, r,))) }
         / "gets"    __ a:expr_args(3) { destructure_expr_args!( a => q, s, e  ); Expr::Gets   (Box::new((q, s, e))) }
         / "get"     __ a:expr_args(2) { destructure_expr_args!( a => q, i,    ); Expr::Get    (Box::new((q, i,))) }
         / "pushes"  __ a:expr_args(2) { destructure_expr_args!( a => q, l,    ); Expr::Pushes (Box::new((q, l,))) }
