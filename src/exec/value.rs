@@ -127,6 +127,24 @@ impl Not for Value {
     }
 }
 
+impl Rem for Value {
+    type Output = Value;
+    fn rem(self, rhs : Self) -> Self::Output {
+        match ((&self, &rhs)) {
+            (Self::Unit, _)                  | (_, Self::Unit)                 => Self::Error,
+            (Self::Bool(_), _)               | (_, Self::Bool(_))              => Self::Error,
+            (Self::Int(a), Self::Int(b))                                       => Self::Int(*a % *b), 
+            (Self::Int(a), Self::Float(b))                                     => Self::Float(f128::from(*a) % *b), 
+            (Self::Float(a), Self::Int(b))                                     => Self::Float(*a % f128::from(*b)), 
+            (Self::Float(a), Self::Float(b))                                   => Self::Float(*a % *b), 
+            (Self::String(_), _)             | (_, Self::String(_))            => Self::Error,
+            (Self::Error, _)                 | (_, Self::Error)                => Self::Error,
+            (Self::ExprQueue, _)             | (_, Self::ExprQueue)            => Self::Error,
+            (Self::Array(_), _)              | (_, Self::Array(_))             => Self::Error
+        }
+    }
+}
+
 impl fmt::Display for Value {
     fn fmt(&self, f : &mut fmt::Formatter<'_>) -> fmt::Result {
         match (self) {
