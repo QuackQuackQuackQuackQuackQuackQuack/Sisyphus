@@ -87,8 +87,10 @@ impl Execute for Expr {
                 if let Ok(i) = arg.execute(e).to_string().parse::<i128>() {
                     Value::Int(i)
                 } else { Value::Error }
-            }
-            Self::Lit(lit) => lit.execute(e)
+            },
+            Self::Lit(lit) => lit.execute(e),
+            Self::Not(arg) => !arg.0.execute(e),
+            Self::Equals(args) => Value::Bool(args.0.execute(e) == args.1.execute(e))
         }
     }
 }

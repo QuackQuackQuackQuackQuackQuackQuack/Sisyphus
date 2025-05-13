@@ -1,5 +1,5 @@
 use core::fmt;
-use core::ops::{ Add, Sub, Mul, Div, Rem, BitAnd, BitOr, BitXor, Not };
+use core::ops::{ Add, Sub, Mul, Div, Rem, Not };
 use f128::f128;
 
 
