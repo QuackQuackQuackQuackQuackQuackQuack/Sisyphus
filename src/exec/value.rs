@@ -1,6 +1,7 @@
 use core::fmt;
 use core::ops::{ Add, Sub, Mul, Div, Rem, Not };
 use f128::f128;
+use std::cmp::Ordering;
 
 
 #[derive(Clone, Debug, PartialEq)]
@@ -141,6 +142,18 @@ impl Rem for Value {
             (Self::Error, _)                 | (_, Self::Error)                => Self::Error,
             (Self::ExprQueue, _)             | (_, Self::ExprQueue)            => Self::Error,
             (Self::Array(_), _)              | (_, Self::Array(_))             => Self::Error
+        }
+    }
+}
+
+impl PartialOrd for Value {
+    fn partial_cmp(&self, rhs: &Self) -> Option<Ordering> {
+        match ((&self, &rhs)) {
+            (Self::Bool(l), Self::Bool(r))     => Some(l.cmp(&r)),
+            (Self::Int(l), Self::Int(r))       => Some(l.cmp(&r)),
+            (Self::Float(l), Self::Float(r))   => l.partial_cmp(&r),
+            (Self::String(l), Self::String(r)) => Some(l.cmp(&r)),
+            _                                  => None,
         }
     }
 }

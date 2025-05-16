@@ -9,8 +9,18 @@ pub enum Expr {
     Sub(Box<(Expr, Expr,)>), // left, right
     Mul(Box<(Expr, Expr,)>), // left, right
     Div(Box<(Expr, Expr,)>), // left, right
+<<<<<<< Updated upstream
     Not(Box<Expr>), 
     Equals(Box<(Expr, Expr,)>),
+=======
+    Rem(Box<(Expr, Expr,)>),
+    Not(Box<(Expr,)>), 
+    Equals(Box<(Expr, Expr)>),
+    Greater(Box<(Expr, Expr)>),
+    GreaterEquals(Box<(Expr, Expr)>),
+    Less(Box<(Expr, Expr)>),
+    LessEquals(Box<(Expr, Expr)>),
+>>>>>>> Stashed changes
     Get(Box<(Expr, Expr,)>), // iterable, index
     Gets(Box<(Expr, Expr, Expr)>), // iterable, start index, end index
     Push(Box<(Expr, Expr,)>), // iterable, entry
@@ -36,6 +46,8 @@ impl fmt::Display for Expr {
             Expr::Sub     (expr) => write!(f, "- {} {}", expr.0, expr.1),
             Expr::Mul     (expr) => write!(f, "* {} {}", expr.0, expr.1),
             Expr::Div     (expr) => write!(f, "/ {} {}", expr.0, expr.1),
+            Expr::Rem     (expr) => write!(f, "% {} {}", expr.0, expr.1),
+            Expr::Not     (expr) => write!(f, "! {}", expr.0),
             Expr::Get     (expr) => write!(f, "get {} {}", expr.0, expr.1),
             Expr::Gets    (expr) => write!(f, "gets {} {} {}", expr.0, expr.1, expr.2),
             Expr::Push    (expr) => write!(f, "push {} {}", expr.0, expr.1),
