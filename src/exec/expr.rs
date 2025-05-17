@@ -22,6 +22,7 @@ impl Execute for Expr {
             Self::Sub(args) => args.0.execute(e) - args.1.execute(e),
             Self::Mul(args) => args.0.execute(e) * args.1.execute(e),
             Self::Div(args) => args.0.execute(e) / args.1.execute(e),
+            Self::Rem(args) => args.0.execute(e) % args.1.execute(e),
             Self::Get(args) => {
                 let q = args.0.execute(e);
                 let i = args.1.execute(e);
@@ -93,12 +94,32 @@ impl Execute for Expr {
                 } else { Value::Error }
             },
             Self::Lit(lit) => lit.execute(e),
-            Self::Not(arg) => !arg.execute(e),
+            Self::Not(arg) => !arg.0.execute(e),
             Self::Equals(args) => {
                 let l = args.0.execute(e);
                 let r = args.1.execute(e);
-                println!("{} {}", l, r);
+                println!("{} {}", l, r); // TODO: why is there a print here?
                 Value::Bool(l == r)
+            },
+            Self::Greater(args) => {
+                let l = args.0.execute(e);
+                let r = args.1.execute(e);
+                Value::Bool(l > r)
+            },
+            Self::GreaterEquals(args) => {
+                let l = args.0.execute(e);
+                let r = args.1.execute(e);
+                Value::Bool(l >= r)
+            }
+            Self::Less(args) => {
+                let l = args.0.execute(e);
+                let r = args.1.execute(e);
+                Value::Bool(l < r)
+            }
+            Self::LessEquals(args) => {
+                let l = args.0.execute(e);
+                let r = args.1.execute(e);
+                Value::Bool(l >= r)
             }
         }
     }

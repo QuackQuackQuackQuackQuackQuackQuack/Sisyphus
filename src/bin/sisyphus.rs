@@ -4,7 +4,7 @@ use sisyphus::exec::Executor;
 
 
 fn main() {
-    let source_file = "samples/sqrt.push";
+    let source_file = "samples/primes.push";
 
     let mut executor = Executor::new();
     executor.push_exprs([
