@@ -78,9 +78,10 @@ impl Execute for Expr {
             },
             Self::If(args) => {
                 let c = args.0.execute(e);
-                let t = args.1.execute(e);
-                let f = args.2.execute(e);
-                Self::exec_if(e, c, t, f)
+                let Value::Bool(c) = c
+                    else { return Value::Error; };
+                if c { return args.1.execute(e); }
+                else { return args.2.execute(e); }
             },
             Self::Range(args) => {
                 let i0 = args.0.execute(e);

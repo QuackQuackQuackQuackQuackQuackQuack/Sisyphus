@@ -1,0 +1,2 @@
+print if = get queue 1 0 "hello" "hi"
+0
