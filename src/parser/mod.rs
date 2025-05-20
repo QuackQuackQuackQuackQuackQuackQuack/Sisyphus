@@ -36,7 +36,7 @@ peg::parser! { grammar sisyphys_parser() for str {
         / "<="      __ a:expr_args(2) { destructure_expr_args!( a => l, r,    ); Expr::LessEquals    (Box::new((l, r,))) }
         / "="       __ a:expr_args(2) { destructure_expr_args!( a => l, r,    ); Expr::Equals        (Box::new((l, r,))) }
         / ">"       __ a:expr_args(2) { destructure_expr_args!( a => l, r,    ); Expr::Greater       (Box::new((l, r,))) }
-        / "<"       __ a:expr_args(2) { destructure_expr_args!( a => l, r,    ); Expr::Greater       (Box::new((l, r,))) }
+        / "<"       __ a:expr_args(2) { destructure_expr_args!( a => l, r,    ); Expr::Less          (Box::new((l, r,))) }
         / "gets"    __ a:expr_args(3) { destructure_expr_args!( a => q, s, e  ); Expr::Gets          (Box::new((q, s, e))) }
         / "get"     __ a:expr_args(2) { destructure_expr_args!( a => q, i,    ); Expr::Get           (Box::new((q, i,))) }
         / "pushes"  __ a:expr_args(2) { destructure_expr_args!( a => q, l,    ); Expr::Pushes        (Box::new((q, l,))) }

@@ -3,5 +3,8 @@ insert queue + 5 int get queue 4 + 1 int get queue 4
 set queue 3 + 1 int get queue 3
 print gets queue 3 + 2 int get queue 2
 pushes queue gets queue 1 + 2 int get queue 1
+4
 1
-1
+2
+3
+4

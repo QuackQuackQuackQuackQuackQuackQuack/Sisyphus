@@ -99,7 +99,7 @@ impl Execute for Expr {
             Self::Equals(args) => {
                 let l = args.0.execute(e);
                 let r = args.1.execute(e);
-                println!("{} {}", l, r); // TODO: why is there a print here?
+                //println!("{} {}", l, r); // TODO: why is there a print here?
                 Value::Bool(l == r)
             },
             Self::Greater(args) => {
@@ -115,12 +115,13 @@ impl Execute for Expr {
             Self::Less(args) => {
                 let l = args.0.execute(e);
                 let r = args.1.execute(e);
+                //println!("{} {}", l, r);
                 Value::Bool(l < r)
             }
             Self::LessEquals(args) => {
                 let l = args.0.execute(e);
                 let r = args.1.execute(e);
-                Value::Bool(l >= r)
+                Value::Bool(l <= r)
             }
         }
     }
